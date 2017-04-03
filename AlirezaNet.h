@@ -16,9 +16,9 @@ namespace Alireza {
     using namespace Eigen;
     typedef Matrix<float, Dynamic, Dynamic> tensor;
 
-    using std::vector;
+    using namespace std;
 
-    tensor _sig(tensor &input) {
+    tensor _sig(tensor input) {
         tensor tmp = input;
         for (unsigned i = 0; i < tmp.rows(); i++) {
             for (unsigned j = 0; j < tmp.cols(); j++) {
@@ -28,7 +28,7 @@ namespace Alireza {
         return tmp;
     }
 
-    tensor _sig_d(tensor &input) {
+    tensor _sig_d(tensor input) {
         tensor tmp = input;
         for (unsigned i = 0; i < tmp.rows(); i++) {
             for (unsigned j = 0; j < tmp.cols(); j++) {
@@ -57,8 +57,8 @@ namespace Alireza {
             l2Weights.setRandom();
         }
 
-        void train(vector<tensor &> sample, vector<tensor &> groundTruth, unsigned epoch) {
-            assert(input.size() == groundTruth.size());
+        void train(vector<tensor> sample, vector<tensor> groundTruth, unsigned epoch) {
+            assert(sample.size() == groundTruth.size());
             for (int i = 0; i < epoch; i++) {
                 for (int j = 0; j < sample.size(); j++) {
                     std::cout << "training sample ..." << std::endl;
@@ -72,7 +72,7 @@ namespace Alireza {
             backward(groundTruth);
         }
 
-        tensor test(tensor &sample) {
+        tensor test(tensor sample) {
             forward(sample);
             return output;
         }
@@ -98,7 +98,8 @@ namespace Alireza {
         void backward(tensor &groundTruth) {
             l2Error = Eigen::MatrixXf::Ones(outputSize, 1) - output;
             l2Error.cwiseProduct(output);
-            l2Error.cwiseProduct(groundTruth - output);
+            tensor totalError = groundTruth - output;
+            l2Error.cwiseProduct(totalError);
             l1Error = Eigen::MatrixXf::Ones(hiddenSize + 1, 1) - l1Out;
             l1Error.cwiseProduct(l1Out);
             l1Error.cwiseProduct(l2Weights.transpose() * l2Error);
